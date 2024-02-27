@@ -1,11 +1,11 @@
 """Train and test LSTM classifier"""
 import dga_classifier.data as data
 import numpy as np
-from keras.preprocessing import sequence
-from keras.models import Sequential
-from keras.layers import Dense, Dropout, Activation
-from keras.layers import Embedding
-from keras.layers import LSTM
+from tensorflow.keras.preprocessing import sequence
+from tensorflow.keras.models import Sequential
+from tensorflow.keras.layers import Dense, Dropout, Activation
+from tensorflow.keras.layers import Embedding
+from tensorflow.keras.layers import LSTM
 import sklearn.metrics
 from sklearn.model_selection import train_test_split
 

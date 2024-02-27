@@ -9,7 +9,7 @@ import numpy as np
 import dga_classifier.bigram as bigram
 import dga_classifier.lstm as lstm
 
-from scipy import interp
+from numpy import interp
 from sklearn.metrics import roc_curve, auc
 
 RESULT_FILE = 'results.pkl'
