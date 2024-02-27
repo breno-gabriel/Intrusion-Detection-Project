@@ -67,7 +67,7 @@ def gen_malicious(num_per_dga=10000):
                      'albuquerque', 'sanfrancisco', 'sandiego', 'losangeles', 'newyork',
                      'atlanta', 'portland', 'seattle', 'washingtondc']
 
-    segs_size = max(1, num_per_dga/len(banjori_seeds))
+    segs_size = int(max(1, num_per_dga/len(banjori_seeds)))
     for banjori_seed in banjori_seeds:
         domains += banjori.generate_domains(segs_size, banjori_seed)
         labels += ['banjori']*segs_size
@@ -77,7 +77,7 @@ def gen_malicious(num_per_dga=10000):
 
     # Create different length domains using cryptolocker
     crypto_lengths = range(8, 32)
-    segs_size = max(1, num_per_dga/len(crypto_lengths))
+    segs_size = int(max(1, num_per_dga/len(crypto_lengths)))
     for crypto_length in crypto_lengths:
         domains += cryptolocker.generate_domains(segs_size,
                                                  seed_num=random.randint(1, 1000000),
@@ -88,14 +88,14 @@ def gen_malicious(num_per_dga=10000):
     labels += ['dircrypt']*num_per_dga
 
     # generate kraken and divide between configs
-    kraken_to_gen = max(1, num_per_dga/2)
+    kraken_to_gen = int(max(1, num_per_dga/2))
     domains += kraken.generate_domains(kraken_to_gen, datetime(2016, 1, 1), 'a', 3)
     labels += ['kraken']*kraken_to_gen
     domains += kraken.generate_domains(kraken_to_gen, datetime(2016, 1, 1), 'b', 3)
     labels += ['kraken']*kraken_to_gen
 
     # generate locky and divide between configs
-    locky_gen = max(1, num_per_dga/11)
+    locky_gen = int(max(1, num_per_dga/11))
     for i in range(1, 12):
         domains += lockyv2.generate_domains(locky_gen, config=i)
         labels += ['locky']*locky_gen
@@ -110,7 +110,7 @@ def gen_malicious(num_per_dga=10000):
 
     # ramdo divided over different lengths
     ramdo_lengths = range(8, 32)
-    segs_size = max(1, num_per_dga/len(ramdo_lengths))
+    segs_size = int(max(1, num_per_dga/len(ramdo_lengths)))
     for rammdo_length in ramdo_lengths:
         domains += ramdo.generate_domains(segs_size,
                                           seed_num=random.randint(1, 1000000),
@@ -123,7 +123,7 @@ def gen_malicious(num_per_dga=10000):
 
     # simda
     simda_lengths = range(8, 32)
-    segs_size = max(1, num_per_dga/len(simda_lengths))
+    segs_size = int(max(1, num_per_dga/len(simda_lengths)))
     for simda_length in range(len(simda_lengths)):
         domains += simda.generate_domains(segs_size,
                                           length=simda_length,
