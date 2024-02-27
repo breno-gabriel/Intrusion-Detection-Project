@@ -18,7 +18,7 @@ def generate_domains(nr, seed="1DBA8930", tld=''):
     ret = []
 
     for i in range(nr):
-        domain_len = r.rand_int_modulus(12+1) + 8
+        domain_len = int(r.rand_int_modulus(12+1) + 8)
         domain = ""
         for i in range(domain_len):
             char = chr(ord('a') + r.rand_int_modulus(25+1))

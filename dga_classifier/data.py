@@ -1,29 +1,53 @@
 """Generates data for train/test algorithms"""
 from datetime import datetime
-from StringIO import StringIO
-from urllib import urlopen
+from io import StringIO  
+# from urllib import urlopen
 from zipfile import ZipFile
-
-import cPickle as pickle
+import pickle
 import os
 import random
 import tldextract
+import csv 
 
-from dga_classifier.dga_generators import banjori, corebot, cryptolocker, \
+from dga_generators import banjori, corebot, cryptolocker, \
     dircrypt, kraken, lockyv2, pykspa, qakbot, ramdo, ramnit, simda
 
 # Location of Alexa 1M
-ALEXA_1M = 'http://s3.amazonaws.com/alexa-static/top-1m.csv.zip'
+# ALEXA_1M = 'http://s3.amazonaws.com/alexa-static/top-1m.csv.zip'
 
 # Our ourput file containg all the training data
 DATA_FILE = 'traindata.pkl'
 
-def get_alexa(num, address=ALEXA_1M, filename='top-1m.csv'):
-    """Grabs Alexa 1M"""
-    url = urlopen(address)
-    zipfile = ZipFile(StringIO(url.read()))
-    return [tldextract.extract(x.split(',')[1]).domain for x in \
-            zipfile.read(filename).split()[:num]]
+# def get_alexa(num, address=ALEXA_1M, filename='top-1m.csv'):
+#     """Grabs Alexa 1M"""
+#     url = urlopen(address)
+#     zipfile = ZipFile(StringIO(url.read()))
+#     return [tldextract.extract(x.split(',')[1]).domain for x in \
+#             zipfile.read(filename).split()[:num]]
+
+import csv
+
+def get_majestic_domain(num, filename='majestic_million.csv'):
+    with open(filename, 'r') as arquivo:
+        arquivo_csv = csv.reader(arquivo, delimiter=",")
+        
+        dominios = []
+
+        for linha in arquivo_csv:
+            dominio = linha[2]
+            dominios.append(dominio)  
+
+            if len(dominios) == num:
+                break
+
+    return dominios
+
+# Exemplo de uso
+numero_de_dominios = 10
+lista_de_dominios = get_majestic_domain(numero_de_dominios)
+print(lista_de_dominios)
+
+
 
 def gen_malicious(num_per_dga=10000):
     """Generates num_per_dga of each DGA"""
@@ -120,7 +144,8 @@ def gen_data(force=False):
         domains, labels = gen_malicious(10000)
 
         # Get equal number of benign/malicious
-        domains += get_alexa(len(domains))
+        print(get_majestic_domain(len(domains)))
+        domains += get_majestic_domain(len(domains))
         labels += ['benign']*len(domains)
 
         pickle.dump(zip(labels, domains), open(DATA_FILE, 'w'))
