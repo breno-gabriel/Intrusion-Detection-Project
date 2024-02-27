@@ -14,7 +14,7 @@ from sklearn.metrics import roc_curve, auc
 
 RESULT_FILE = 'results.pkl'
 
-def run_experiments(isbigram=True, islstm=True, nfolds=10):
+def run_experiments(isbigram=False, islstm=True, nfolds=10):
     """Runs all experiments"""
     bigram_results = None
     lstm_results = None
@@ -27,7 +27,7 @@ def run_experiments(isbigram=True, islstm=True, nfolds=10):
 
     return bigram_results, lstm_results
 
-def create_figs(isbigram=True, islstm=True, nfolds=10, force=False):
+def create_figs(isbigram=False, islstm=True, nfolds=10, force=False):
     """Create figures"""
     # Generate results if needed
     if force or (not os.path.isfile(RESULT_FILE)):
