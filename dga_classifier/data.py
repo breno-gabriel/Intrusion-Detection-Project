@@ -9,7 +9,7 @@ import random
 import tldextract
 import csv 
 
-from dga_classifier.dga_generators import banjori, corebot, cryptolocker, \
+from dga_generators import banjori, corebot, cryptolocker, \
     dircrypt, kraken, lockyv2, pykspa, qakbot, ramdo, ramnit, simda
 
 # Location of Alexa 1M
