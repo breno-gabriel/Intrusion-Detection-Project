@@ -6,7 +6,7 @@ import matplotlib
 matplotlib.use('Agg')
 import numpy as np
 
-import dga_classifier.bigram as bigram
+# import dga_classifier.bigram as bigram
 import dga_classifier.lstm as lstm
 
 from scipy import interpolate
@@ -19,8 +19,8 @@ def run_experiments(isbigram=False, islstm=True, nfolds=10):
     bigram_results = None
     lstm_results = None
 
-    if isbigram:
-        bigram_results = bigram.run(nfolds=nfolds)
+    # if isbigram:
+    #     bigram_results = bigram.run(nfolds=nfolds)
 
     if islstm:
         lstm_results = lstm.run(nfolds=nfolds)
