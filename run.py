@@ -6,7 +6,7 @@ import matplotlib
 matplotlib.use('Agg')
 import numpy as np
 
-import dga_classifier.bigram as bigram
+# import dga_classifier.bigram as bigram
 import dga_classifier.lstm as lstm
 
 from scipy import interpolate
@@ -14,20 +14,20 @@ from sklearn.metrics import roc_curve, auc
 
 RESULT_FILE = 'results.pkl'
 
-def run_experiments(isbigram=True, islstm=True, nfolds=10):
+def run_experiments(isbigram=False, islstm=True, nfolds=10):
     """Runs all experiments"""
     bigram_results = None
     lstm_results = None
 
-    if isbigram:
-        bigram_results = bigram.run(nfolds=nfolds)
+    # if isbigram:
+    #     bigram_results = bigram.run(nfolds=nfolds)
 
     if islstm:
         lstm_results = lstm.run(nfolds=nfolds)
 
     return bigram_results, lstm_results
 
-def create_figs(isbigram=True, islstm=True, nfolds=10, force=False):
+def create_figs(isbigram=False, islstm=True, nfolds=10, force=False):
     """Create figures"""
     # Generate results if needed
     if force or (not os.path.isfile(RESULT_FILE)):
