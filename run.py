@@ -8,7 +8,7 @@ import numpy as np
 from scipy.interpolate import interp1d
 
 
-# import dga_classifier.bigram as bigram
+import dga_classifier.bigram as bigram
 import dga_classifier.lstm as lstm
 
 from scipy import interpolate
@@ -16,32 +16,32 @@ from sklearn.metrics import roc_curve, auc
 
 RESULT_FILE = 'results.pkl'
 
-def run_experiments(isbigram=True, islstm=True, nfolds=10):
+def run_experiments(isbigram=True, islstm=True, nfolds=15):
     """Runs all experiments"""
     bigram_results = None
     lstm_results = None
 
-    # if isbigram:
-    #     bigram_results = bigram.run(nfolds=nfolds)
+    if isbigram:
+        bigram_results = bigram.run(nfolds=nfolds)
 
     if islstm:
         lstm_results = lstm.run(nfolds=nfolds)
 
-    # return bigram_results, lstm_results
+    return bigram_results, lstm_results
         
-    return lstm_results
+    # return lstm_results
 
-def create_figs(isbigram=True, islstm=True, nfolds=10, force=False):
+def create_figs(isbigram=True, islstm=True, nfolds=15, force=False):
     """Create figures"""
     # Generate results if needed
     # if force or (not os.path.isfile(RESULT_FILE)):
-        # bigram_results, lstm_results = run_experiments(isbigram, islstm, nfolds)
+    bigram_results, lstm_results = run_experiments(isbigram, islstm, nfolds)
 
-    lstm_results = run_experiments(isbigram, islstm, nfolds)
+    # lstm_results = run_experiments(isbigram, islstm, nfolds)
 
-        # results = {'bigram': bigram_results, 'lstm': lstm_results}
+    results = {'bigram': bigram_results, 'lstm': lstm_results}
 
-    results = {'bigram': None, 'lstm': lstm_results}
+    # results = {'bigram': None, 'lstm': lstm_results}
 
     # return results
 
@@ -50,15 +50,15 @@ def create_figs(isbigram=True, islstm=True, nfolds=10, force=False):
     #     results = pickle.load(open(RESULT_FILE, 'rb'))
 
     # Extract and calculate bigram ROC
-    # if results['bigram']:
-    #     bigram_results = results['bigram']
-    #     fpr = []
-    #     tpr = []
-    #     for bigram_result in bigram_results:
-    #         t_fpr, t_tpr, _ = roc_curve(bigram_result['y'], bigram_result['probs'])
-    #         fpr.append(t_fpr)
-    #         tpr.append(t_tpr)
-    #     bigram_binary_fpr, bigram_binary_tpr, bigram_binary_auc = calc_macro_roc(fpr, tpr)
+    if results['bigram']:
+        bigram_results = results['bigram']
+        fpr = []
+        tpr = []
+        for bigram_result in bigram_results:
+            t_fpr, t_tpr, _ = roc_curve(bigram_result['y'], bigram_result['probs'])
+            fpr.append(t_fpr)
+            tpr.append(t_tpr)
+        bigram_binary_fpr, bigram_binary_tpr, bigram_binary_auc = calc_macro_roc(fpr, tpr)
 
     # xtract and calculate LSTM ROC
     if results['lstm']:
@@ -71,16 +71,16 @@ def create_figs(isbigram=True, islstm=True, nfolds=10, force=False):
             tpr.append(t_tpr)
         lstm_binary_fpr, lstm_binary_tpr, lstm_binary_auc = calc_macro_roc(fpr, tpr)
     
-    print(fpr)
-    print(tpr)
+    # print(fpr)
+    # print(tpr)
 
     # Save figure
     from matplotlib import pyplot as plt
     with plt.style.context('bmh'):
         plt.plot(lstm_binary_fpr, lstm_binary_tpr,
                  label='LSTM (AUC = %.4f)' % (lstm_binary_auc, ), rasterized=True)
-        # plt.plot(bigram_binary_fpr, bigram_binary_tpr,
-        #          label='Bigrams (AUC = %.4f)' % (bigram_binary_auc, ), rasterized=True)
+        plt.plot(bigram_binary_fpr, bigram_binary_tpr,
+                 label='Bigrams (AUC = %.4f)' % (bigram_binary_auc, ), rasterized=True)
 
         plt.xlim([0.0, 1.0])
         plt.ylim([0.0, 1.05])
@@ -111,4 +111,4 @@ def calc_macro_roc(fpr, tpr):
 
 
 if __name__ == "__main__":
-    create_figs(nfolds=1) # Run with 1 to make it fast
+    create_figs() # Run with 1 to make it fast
