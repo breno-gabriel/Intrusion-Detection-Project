@@ -1,10 +1,14 @@
+
 """Run experiments and create figs"""
 import itertools
+import seaborn as sns
 import os
 import pickle
 import matplotlib
+import pandas as pd 
 matplotlib.use('Agg')
 import numpy as np
+from matplotlib import pyplot as plt
 from scipy.interpolate import interp1d
 
 
@@ -12,7 +16,7 @@ import dga_classifier.bigram as bigram
 import dga_classifier.lstm as lstm
 
 from scipy import interpolate
-from sklearn.metrics import roc_curve, auc
+from sklearn.metrics import roc_curve, auc, confusion_matrix, ConfusionMatrixDisplay, precision_score, recall_score, f1_score
 
 RESULT_FILE = 'results.pkl'
 
@@ -59,6 +63,7 @@ def create_figs(isbigram=True, islstm=True, nfolds=15, force=False):
             fpr.append(t_fpr)
             tpr.append(t_tpr)
         bigram_binary_fpr, bigram_binary_tpr, bigram_binary_auc = calc_macro_roc(fpr, tpr)
+        
 
     # xtract and calculate LSTM ROC
     if results['lstm']:
@@ -70,12 +75,13 @@ def create_figs(isbigram=True, islstm=True, nfolds=15, force=False):
             fpr.append(t_fpr)
             tpr.append(t_tpr)
         lstm_binary_fpr, lstm_binary_tpr, lstm_binary_auc = calc_macro_roc(fpr, tpr)
+        
+
     
     # print(fpr)
     # print(tpr)
 
     # Save figure
-    from matplotlib import pyplot as plt
     with plt.style.context('bmh'):
         plt.plot(lstm_binary_fpr, lstm_binary_tpr,
                  label='LSTM (AUC = %.4f)' % (lstm_binary_auc, ), rasterized=True)
@@ -91,6 +97,74 @@ def create_figs(isbigram=True, islstm=True, nfolds=15, force=False):
 
         plt.tick_params(axis='both', labelsize=22)
         plt.savefig('results.png')
+
+    lstm_confusion_matrix = confusion_matrix(lstm_results[0]['y'], lstm_results[0]['probs'] > 0.5)
+    bigram_confusion_matrix = confusion_matrix(bigram_results[0]['y'], bigram_results[0]['probs'] > 0.5)
+
+    plot_confusion_matrix(bigram_confusion_matrix, classes=['benign', 'malicious'], model_name='Bigrams')
+    plot_confusion_matrix(lstm_confusion_matrix, classes=['benign', 'malicious'], model_name='LSTM')
+
+    """Plot and save metrics table"""
+    lstm_metrics = calculate_metrics(lstm_results)
+    bigram_metrics = calculate_metrics(bigram_results)
+
+    table_data = {
+        'Model': ['LSTM', 'Bigrams'],
+        'Precision': [lstm_metrics['precision'], bigram_metrics['precision']],
+        'Recall': [lstm_metrics['recall'], bigram_metrics['recall']],
+        'F1-Score': [lstm_metrics['f1_score'], bigram_metrics['f1_score']]
+    }
+
+    table_df = pd.DataFrame(table_data)
+    plt.figure(figsize=(12, 6))
+    sns.set(font_scale=1.2)
+    
+    # Plot metrics table
+    plt.subplot(1, 2, 1)
+    sns.heatmap(table_df.set_index('Model').T, annot=True, cmap='Blues', fmt=".3f", linewidths=.5)
+    plt.title('Metrics Table', fontsize=20)
+
+    # Plot ROC curve for LSTM
+    plt.subplot(1, 2, 2)
+    with plt.style.context('bmh'):
+        plt.plot(lstm_binary_fpr, lstm_binary_tpr,
+                 label='LSTM (AUC = %.4f)' % (lstm_binary_auc, ), rasterized=True)
+        plt.plot(bigram_binary_fpr, bigram_binary_tpr,
+                 label='Bigrams (AUC = %.4f)' % (bigram_binary_auc, ), rasterized=True)
+
+        plt.xlim([0.0, 1.0])
+        plt.ylim([0.0, 1.05])
+        plt.xlabel('False Positive Rate', fontsize=16)
+        plt.ylabel('True Positive Rate', fontsize=16)
+        plt.title('ROC - Binary Classification', fontsize=20)
+        plt.legend(loc="lower right", fontsize=16)
+
+    plt.tick_params(axis='both', labelsize=16)
+    plt.tight_layout()
+    plt.savefig('metrics_and_roc.png')
+
+def calculate_metrics(results):
+    """Calculate precision, recall, and f1-score"""
+    y_true = results[0]['y']
+    y_pred = (results[0]['probs'] > 0.5).astype(int)
+
+    precision = precision_score(y_true, y_pred)
+    recall = recall_score(y_true, y_pred)
+    f1 = f1_score(y_true, y_pred)
+
+    return {'precision': precision, 'recall': recall, 'f1_score': f1}
+
+def plot_confusion_matrix(conf_matrix, classes, model_name):
+    """Plot and save confusion matrix"""
+    disp = ConfusionMatrixDisplay(confusion_matrix=conf_matrix, display_labels=classes)
+    with plt.style.context('bmh'):
+        plt.figure(figsize=(8, 6))
+        disp.plot(cmap='Blues', values_format='d')
+        plt.title(f'Confusion Matrix - {model_name}', fontsize=26)
+        plt.xlabel('Predicted Label', fontsize=22)
+        plt.ylabel('True Label', fontsize=22)
+        plt.tick_params(axis='both', labelsize=18)
+        plt.savefig(f'confusion_matrix_{model_name.lower()}.png')
 
 def calc_macro_roc(fpr, tpr):
     """Calcs macro ROC on log scale"""
@@ -111,4 +185,4 @@ def calc_macro_roc(fpr, tpr):
 
 
 if __name__ == "__main__":
-    create_figs() # Run with 1 to make it fast
+    create_figs(nfolds=1) # Run with 1 to make it fast

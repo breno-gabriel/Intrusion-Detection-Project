@@ -27,7 +27,7 @@ def build_model(max_features, maxlen):
 
     return model
 
-def run(max_epoch=25, nfolds=15, batch_size=128):
+def run(max_epoch=25, nfolds=10, batch_size=128):
     """Run train/test on logistic regression model"""
     # indata = data.get_data()
 
@@ -56,7 +56,7 @@ def run(max_epoch=25, nfolds=15, batch_size=128):
     for fold in range(nfolds):
         print ("fold %u/%u" % (fold+1, nfolds))
         X_train, X_test, y_train, y_test, _, label_test = train_test_split(X, y, labels, 
-                                                                           test_size=0.2)
+                                                                           test_size=0.05)
 
         print ('Build model...')
         model = build_model(max_features, maxlen)

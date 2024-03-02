@@ -43,11 +43,13 @@
 
 import csv
 
-def get_data(num_per_dga=10000):
+def get_data(num_per_class=10000):
     domains = []
     labels = []
 
     csv_file_path = 'dga_classifier/dga_domains_full.csv'
+
+    counts = {'alexa': 0, 'maligno': 0}
 
     with open(csv_file_path, 'r', encoding='utf-8') as csvfile:
         csv_reader = csv.reader(csvfile)
@@ -56,12 +58,28 @@ def get_data(num_per_dga=10000):
             label = row[1].strip().lower()
             domain = row[2].strip()
 
-            domains.append(domain)
-            labels.append(label)
+            if label == 'alexa' and counts[label] < num_per_class / 2:
+                domains.append(domain)
+                labels.append(label)
+                counts[label] += 1
 
-            if len(domains) == num_per_dga:
+            elif label != 'alexa' and counts['maligno'] < num_per_class / 2:
+                domains.append(domain)
+                labels.append(label)  # Use um rótulo específico para dados malignos
+                counts['maligno'] += 1
+
+            if counts['alexa'] == num_per_class / 2 and counts['maligno'] == num_per_class / 2:
                 break
+
+                # Salvar os domínios em um arquivo de texto
+    with open('dominios_selecionados.txt', 'w', encoding='utf-8') as txtfile:
+        for domain, label in zip(domains, labels):
+            txtfile.write(f'{domain}: {label}\n')
+
 
     return domains, labels
 
 domains, labels = get_data()
+
+
+
