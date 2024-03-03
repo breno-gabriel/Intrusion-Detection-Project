@@ -8,8 +8,9 @@ import os
 import random
 import tldextract
 import csv 
+import random
 
-from dga_generators import banjori, corebot, cryptolocker, \
+from dga_classifier.dga_generators import banjori, corebot, cryptolocker, \
     dircrypt, kraken, lockyv2, pykspa, qakbot, ramdo, ramnit, simda
 
 # Location of Alexa 1M
@@ -28,7 +29,7 @@ DATA_FILE = 'traindata.pkl'
 import csv
 
 def get_majestic_domain(num, filename='majestic_million.csv'):
-    with open(filename, 'r') as arquivo:
+    with open(filename, 'r', encoding='utf-8') as arquivo:
         arquivo_csv = csv.reader(arquivo, delimiter=",")
         
         dominios = []
@@ -42,14 +43,7 @@ def get_majestic_domain(num, filename='majestic_million.csv'):
 
     return dominios
 
-# Exemplo de uso
-numero_de_dominios = 10
-lista_de_dominios = get_majestic_domain(numero_de_dominios)
-print(lista_de_dominios)
-
-
-
-def gen_malicious(num_per_dga=10000):
+def get_data(num_per_dga=15343):
     """Generates num_per_dga of each DGA"""
     domains = []
     labels = []
@@ -67,91 +61,94 @@ def gen_malicious(num_per_dga=10000):
                      'albuquerque', 'sanfrancisco', 'sandiego', 'losangeles', 'newyork',
                      'atlanta', 'portland', 'seattle', 'washingtondc']
 
-    segs_size = max(1, num_per_dga/len(banjori_seeds))
+    segs_size = max(1, round(num_per_dga/len(banjori_seeds)))
     for banjori_seed in banjori_seeds:
-        domains += banjori.generate_domains(segs_size, banjori_seed)
-        labels += ['banjori']*segs_size
+        res =  banjori.generate_domains(segs_size, banjori_seed)
+        domains += res
+        labels += ['banjori']*len(res)
 
-    domains += corebot.generate_domains(num_per_dga)
-    labels += ['corebot']*num_per_dga
+    res = corebot.generate_domains(num_per_dga)
+    domains += res
+    labels += ['corebot']*len(res)
 
     # Create different length domains using cryptolocker
     crypto_lengths = range(8, 32)
-    segs_size = max(1, num_per_dga/len(crypto_lengths))
+    segs_size = max(1, round(num_per_dga/len(crypto_lengths)))
     for crypto_length in crypto_lengths:
-        domains += cryptolocker.generate_domains(segs_size,
+        res = cryptolocker.generate_domains(segs_size,
                                                  seed_num=random.randint(1, 1000000),
                                                  length=crypto_length)
-        labels += ['cryptolocker']*segs_size
+        domains += res 
+        labels += ['cryptolocker']*len(res)
 
-    domains += dircrypt.generate_domains(num_per_dga)
-    labels += ['dircrypt']*num_per_dga
+    res =  dircrypt.generate_domains(num_per_dga)
+    domains += res
+    labels += ['dircrypt']*len(res)
 
     # generate kraken and divide between configs
-    kraken_to_gen = max(1, num_per_dga/2)
-    domains += kraken.generate_domains(kraken_to_gen, datetime(2016, 1, 1), 'a', 3)
-    labels += ['kraken']*kraken_to_gen
-    domains += kraken.generate_domains(kraken_to_gen, datetime(2016, 1, 1), 'b', 3)
-    labels += ['kraken']*kraken_to_gen
+    kraken_to_gen = max(1, round(num_per_dga/2))
+    res = kraken.generate_domains(kraken_to_gen, datetime(2016, 1, 1), 'a', 3)
+    domains += res
+    labels += ['kraken']*len(res)
+    res = kraken.generate_domains(kraken_to_gen, datetime(2016, 1, 1), 'b', 3)
+    domains += res
+    labels += ['kraken']*len(res)
 
     # generate locky and divide between configs
-    locky_gen = max(1, num_per_dga/11)
+    locky_gen = max(1, round(num_per_dga/11))
     for i in range(1, 12):
-        domains += lockyv2.generate_domains(locky_gen, config=i)
-        labels += ['locky']*locky_gen
+        res = lockyv2.generate_domains(locky_gen, config=i)
+        domains += res
+        labels += ['locky']*len(res)
 
     # Generate pyskpa domains
-    domains += pykspa.generate_domains(num_per_dga, datetime(2016, 1, 1))
-    labels += ['pykspa']*num_per_dga
+    res = pykspa.generate_domains(num_per_dga, datetime(2016, 1, 1))
+    domains += res
+    labels += ['pykspa']*len(res)
 
     # Generate qakbot
-    domains += qakbot.generate_domains(num_per_dga, tlds=[])
-    labels += ['qakbot']*num_per_dga
+    res = qakbot.generate_domains(num_per_dga, tlds=[])
+    domains += res
+    labels += ['qakbot']*len(res)
 
     # ramdo divided over different lengths
     ramdo_lengths = range(8, 32)
-    segs_size = max(1, num_per_dga/len(ramdo_lengths))
+    segs_size = max(1, round(num_per_dga/len(ramdo_lengths)))
     for rammdo_length in ramdo_lengths:
-        domains += ramdo.generate_domains(segs_size,
+        res =  ramdo.generate_domains(segs_size,
                                           seed_num=random.randint(1, 1000000),
                                           length=rammdo_length)
-        labels += ['ramdo']*segs_size
+        domains += res
+        labels += ['ramdo']*len(res)
 
     # ramnit
-    domains += ramnit.generate_domains(num_per_dga, 0x123abc12)
-    labels += ['ramnit']*num_per_dga
+    res = ramnit.generate_domains(num_per_dga, 0x123abc12)
+    domains += res
+    labels += ['ramnit']*len(res)
 
     # simda
     simda_lengths = range(8, 32)
-    segs_size = max(1, num_per_dga/len(simda_lengths))
+    segs_size = max(1, round(num_per_dga/len(simda_lengths)))
     for simda_length in range(len(simda_lengths)):
-        domains += simda.generate_domains(segs_size,
+        res = simda.generate_domains(segs_size,
                                           length=simda_length,
                                           tld=None,
                                           base=random.randint(2, 2**32))
-        labels += ['simda']*segs_size
+        domains += res 
+        labels += ['simda']*len(res)
 
+    res = get_majestic_domain(len(domains))
+    domains += res
+    labels += ['benign']*len(res)
+
+    # Embaralhe aleatoriamente os domínios e mantenha as correspondências com os rótulos
+    combined_data = list(zip(domains, labels))
+    random.shuffle(combined_data)
+    domains, labels = zip(*combined_data)
+
+    # print(len(domains))
+    # print(len(labels))
 
     return domains, labels
 
-def gen_data(force=False):
-    """Grab all data for train/test and save
 
-    force:If true overwrite, else skip if file
-          already exists
-    """
-    if force or (not os.path.isfile(DATA_FILE)):
-        domains, labels = gen_malicious(10000)
-
-        # Get equal number of benign/malicious
-        print(get_majestic_domain(len(domains)))
-        domains += get_majestic_domain(len(domains))
-        labels += ['benign']*len(domains)
-
-        pickle.dump(zip(labels, domains), open(DATA_FILE, 'w'))
-
-def get_data(force=False):
-    """Returns data and labels"""
-    gen_data(force)
-
-    return pickle.load(open(DATA_FILE))

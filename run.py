@@ -76,11 +76,6 @@ def create_figs(isbigram=True, islstm=True, nfolds=15, force=False):
             tpr.append(t_tpr)
         lstm_binary_fpr, lstm_binary_tpr, lstm_binary_auc = calc_macro_roc(fpr, tpr)
         
-
-    
-    # print(fpr)
-    # print(tpr)
-
     # Save figure
     with plt.style.context('bmh'):
         plt.plot(lstm_binary_fpr, lstm_binary_tpr,

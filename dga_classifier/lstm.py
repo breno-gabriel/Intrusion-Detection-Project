@@ -1,5 +1,5 @@
 """Train and test LSTM classifier"""
-from dga_classifier.new_data import get_data
+from dga_classifier.data import get_data
 import numpy as np
 # import keras 
 # from keras.preprocessing import sequence
@@ -49,7 +49,7 @@ def run(max_epoch=25, nfolds=10, batch_size=128):
     X = keras.preprocessing.sequence.pad_sequences(X, maxlen=maxlen)
 
     # Convert labels to 0-1
-    y = [0 if x == 'alexa' else 1 for x in labels]
+    y = [0 if x == 'benign' else 1 for x in labels]
 
     final_data = []
 

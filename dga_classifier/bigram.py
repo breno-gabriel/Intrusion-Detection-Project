@@ -1,5 +1,5 @@
 """Train and test bigram classifier"""
-from dga_classifier.new_data import get_data
+from dga_classifier.data import get_data
 # from keras.layers.core import Dense
 from keras.models import Sequential
 import sklearn
@@ -28,6 +28,9 @@ def run(max_epoch=50, nfolds=10, batch_size=128):
     """Run train/test on logistic regression model"""
     X, labels = get_data()
 
+    print(len(X))
+    print(len(labels))
+
     # Extract data and labels
     # X = [x[1] for x in indata]
     # labels = [x[0] for x in indata]
@@ -40,7 +43,7 @@ def run(max_epoch=50, nfolds=10, batch_size=128):
     max_features = count_vec.shape[1]
 
     # Convert labels to 0-1
-    y = [0 if x == 'alexa' else 1 for x in labels]
+    y = [0 if x == 'benign' else 1 for x in labels]
 
     final_data = []
 
