@@ -79,7 +79,7 @@ def get_data(num_per_class=10000):
 
     return domains, labels
 
-domains, labels = get_data()
+# domains, labels = get_data()
 
 
 
