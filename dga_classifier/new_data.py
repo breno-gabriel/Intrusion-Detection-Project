@@ -43,7 +43,7 @@
 
 import csv
 
-def get_data(num_per_class=10000):
+def get_data(num_per_class=337500):
     domains = []
     labels = []
 
